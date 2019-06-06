@@ -15,7 +15,7 @@ rat = rm.Rat()
 
 
 # Run the experiment
-logs = rat.simulate_n_trials(watermaze, 60)
+logs = rat.simulate_n_trials(watermaze, 50)
 
 
 # Print logged data
