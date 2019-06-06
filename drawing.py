@@ -23,8 +23,8 @@ def draw_plateform(axis, plateform):
 
 
 def draw_place_cells(axis, place_cells):
-    cell_centers_x = [cell.center[0] for cell in place_cells]
-    cell_centers_y = [cell.center[1] for cell in place_cells]
+    cell_centers_x = place_cells.centers[:, 0]
+    cell_centers_y = place_cells.centers[:, 1]
 
     axis.scatter(cell_centers_x, cell_centers_y, zorder = 5)
 
