@@ -15,7 +15,7 @@ rat = rm.Rat()
 
 # Run the experiment
 #log = rat.simulate_n_steps(watermaze, 500)
-logs = rat.simulate_n_trials(watermaze, 5)
+logs = rat.simulate_n_trials(watermaze, 50)
 
 
 # Print logged data
@@ -28,7 +28,7 @@ for index, log in enumerate(logs):
     print("\n=== Critic weights ===\n")
     print(rat.critic.weights)
 
-    print("\n=== Critic weights ===\n")
+    print("\n=== Actor weights ===\n")
     print(rat.actor.weights)
 
 
