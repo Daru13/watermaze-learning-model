@@ -14,7 +14,8 @@ PLACE_CELL_STD = 0.16               # meters
 
 NB_ACTIONS = 8                      # quantity
 
-LEARNING_RATE = 0.1                 # RL parameter
+CRITIC_WEIGHTS_UPDATE_SCALE = 0.1  # RL parameter
+ACTOR_WEIGHTS_UPDATE_SCALE = 1.0    # RL parameter
 TIME_PER_STEP = 0.1                 # seconds/simulation step
 
 TRIAL_TIMEOUT = 120                 # seconds

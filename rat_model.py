@@ -45,19 +45,20 @@ class PlaceCells:
 
 
     
-
-
-
 class Critic:
 
     weights = np.zeros((cst.NB_PLACE_CELLS))
 
 
     def update_weights(self, place_cells, reward):
-        error = reward + (cst.LEARNING_RATE * np.dot(place_cells.current_activation, self.weights) -
-                np.dot(place_cells.previous_activation, self.weights))
+        previous_value_estimate = np.dot(place_cells.previous_activation, self.weights)
+        current_value_estimate = np.dot(place_cells.current_activation, self.weights)
 
-        self.weights += error * self.weights
+        if reward == 1:
+            current_value_estimate = np.zeros((cst.NB_PLACE_CELLS))
+
+        error = reward + (cst.LEARNING_RATE * current_value_estimate) - previous_value_estimate
+        self.weights += cst.CRITIC_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
 
         return error
 
@@ -81,15 +82,20 @@ class Actor:
 
     def compute_action_probabilities(self, place_cells):
         activations = np.dot(self.weights, place_cells.current_activation)
-        softmax_activations = np.exp(2.0 * activations)
+
+        # Retrieve the maximum activations to prevent np.exp from overflowing
+        # (it does not affect the final probabilities, since they are divided by the sum)
+        max_activation = np.max(activations)
+        softmax_activations = np.exp(2.0 * (activations - max_activation))
         
+        #return softmax_activations / (softmax_activations.sum() + np.finfo(float).eps)
         return softmax_activations / softmax_activations.sum()
 
     
     def update_weights(self, place_cells, direction, error):
         # Only update the weights of the chosen direction
         direction_index = self.actions.index(direction)
-        self.weights[direction_index, :] += error * place_cells.current_activation
+        self.weights[direction_index, :] += cst.ACTOR_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
 
 
 
