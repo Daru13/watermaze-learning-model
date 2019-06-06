@@ -1,5 +1,5 @@
 import numpy as np
-import random as rd
+from numpy import random as rd
 
 import constants as cst
 import utilities as ut

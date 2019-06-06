@@ -1,9 +1,9 @@
 import numpy as np
 from numpy import linalg as la
+from numpy import random as rd
 from tqdm import tqdm
 
 import sys
-import random as rd
 
 import constants as cst
 import utilities as ut
