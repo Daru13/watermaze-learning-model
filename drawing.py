@@ -58,4 +58,7 @@ def draw_trial(watermaze, rat, log, trial_index = None, save_as_img = True, show
     if save_as_img:
         figure.savefig("figures/trial-{}.png".format(trial_index))
 
-    plt.show()
+    if show_figure:
+        plt.show()
+
+    plt.close(fig = figure)
