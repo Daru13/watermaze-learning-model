@@ -10,25 +10,41 @@ import utilities as ut
 
 
 
-class PlaceCell:
+class PlaceCells:
 
-    center = None
-    std = cst.PLACE_CELL_STD
+    centers = None
 
-
-    def __init__(self, id):
-        self.id = id
-        self.set_random_center()
+    current_activation = None
+    previous_activation = None
 
 
-    def set_random_center(self):
-        self.center = ut.get_random_point_in_disc((cst.X_ORIGIN, cst.Y_ORIGIN),
-                                                  cst.WATERMAZE_RADIUS)
+    def __init__(self):
+        self.set_random_centers()
+        self.reset_activations()
 
 
-    def fire_at(self, position):
-        return np.exp(- np.square(la.norm(position - self.center))
-                        / (2 * self.std * self.std))
+    def reset_activations(self):
+        self.current_activation = np.zeros((cst.NB_PLACE_CELLS))
+        self.previous_activation = np.zeros((cst.NB_PLACE_CELLS))  
+
+
+    def set_random_centers(self):
+        self.centers = np.array(
+            [ut.get_random_point_in_disc((cst.X_ORIGIN, cst.Y_ORIGIN), cst.WATERMAZE_RADIUS) for _ in range(cst.NB_PLACE_CELLS)]
+        )
+
+
+    def activation_at(self, position):
+        return np.exp(- np.square(la.norm(self.centers - position, axis = 1))
+                        / (2 * cst.PLACE_CELL_STD * cst.PLACE_CELL_STD))
+
+
+    def update_activations(self, new_position):
+        np.copyto(self.previous_activation, self.current_activation)
+        self.current_activation = self.activation_at(new_position)
+
+
+    
 
 
 
@@ -39,15 +55,10 @@ class Critic:
 
     #def __init__(self):
 
-        
-
-    def compute_expected_value_at(self, position, place_cells_firing):
-        return np.dot(place_cells_firing, self.weights)
-
-
-    def update_weights(self, place_cells_firing, reward, new_position, old_position):
-        error = reward + (cst.LEARNING_RATE * self.compute_expected_value_at(new_position, place_cells) -
-                self.compute_expected_value_at(old_position, place_cells))
+    
+    def update_weights(self, place_cells, reward):
+        error = reward + (cst.LEARNING_RATE * np.dot(place_cells.current_activation, self.weights) -
+                np.dot(place_cells.previous_activation, self.weights))
 
         self.weights += error * self.weights
 
@@ -74,11 +85,11 @@ class Actor:
     #def __init__(self):
 
 
-    def compute_action_cells_activations(self, place_cells_firing, position):
+    def compute_action_cells_activations(self, place_cells):
         activations = {}
         
         for direction, weights in self.weights.items():
-            activations[direction] = np.dot(place_cells_firing, weights)
+            activations[direction] = np.dot(place_cells.current_activation, weights)
 
         #print("ACTIVATIONS")
         #print(activations)
@@ -86,8 +97,8 @@ class Actor:
         return activations
 
 
-    def compute_action_probabilities(self, place_cells_firing, position):
-        activations = self.compute_action_cells_activations(place_cells, position)
+    def compute_action_probabilities(self, place_cells):
+        activations = self.compute_action_cells_activations(place_cells)
 
         probabilities = {}
         softmax_sum = 0
@@ -109,9 +120,9 @@ class Actor:
         return probabilities
 
     
-    def update_weights(self, place_cells_firing, direction, error, old_position):
+    def update_weights(self, place_cells, direction, error):
         # Only update the weights of the chosen direction
-        self.weights[direction] += error * place_cells_firing
+        self.weights[direction] += error * place_cells.current_activation
 
         #print("ACTOR WEIGHTS UPDATE")
 
@@ -138,8 +149,7 @@ class Rat:
     def __init__(self):
         self.reset_position()
 
-        self.place_cells = [PlaceCell(id) for id in range(cst.NB_PLACE_CELLS)]
-        self.place_cells_current_firing = None
+        self.place_cells = PlaceCells()
 
         self.critic = Critic()
         self.actor = Actor()
@@ -151,6 +161,11 @@ class Rat:
 
         self.previous_pos_diff = np.array([0.0, 0.0])
 
+    
+    def reset(self):
+        self.reset_position()
+        self.place_cells.reset_activations()
+
 
     def is_on_plateform(self, watermaze):
         return la.norm(self.current_pos - watermaze.plateform.center) <= watermaze.plateform.radius
@@ -161,13 +176,13 @@ class Rat:
         self.previous_pos = self.current_pos
 
         # Get the probability of moving in each direction
-        probabilities = self.actor.compute_action_probabilities(self.place_cells, self.current_pos)
+        probabilities = self.actor.compute_action_probabilities(self.place_cells)
 
         # Pick the direction at random according to the above distribution
         new_direction = None
 
         random_number = rd.random()
-        sum_to_random_number = 0
+        sum_to_random_number = 0.0
 
         for direction, probability in probabilities.items():
             sum_to_random_number += probability
@@ -190,8 +205,8 @@ class Rat:
 
         #print("Moved to: {}".format(new_direction))
 
-        # Precompute values related to the new position
-        self.place_cells_current_firing = np.array([cell.fire_at(position) for cell in place_cells])
+        # Update the place cell activations
+        self.place_cells.update_activations(self.current_pos)
 
         # Compute the reward for this move
         reward = 1 if self.is_on_plateform(watermaze) else 0
@@ -201,13 +216,11 @@ class Rat:
 
     def update_weights(self, direction, reward):
         error = self.critic.update_weights(self.place_cells,
-                                           reward,
-                                           self.previous_pos,
-                                           self.current_pos)
+                                           reward)
 
         self.actor.update_weights(self.place_cells, 
-                                  direction, error,
-                                  self.previous_pos)
+                                  direction,
+                                  error)
 
         #print("Weights updated")
         #print("Critic error: {}".format(error))
@@ -256,8 +269,8 @@ class Rat:
         # Iterate for at most cst.STEP_TIMEOUT seconds
         iterator = ut.iterator_with_timeout(iter(range(sys.maxsize)), cst.TRIAL_TIMEOUT)
 
-        # Place the rat at its initial position
-        self.reset_position()
+        # Reset the rat to make it start again (from the same point)
+        self.reset()
 
         # Simulate all the steps
         for _ in iterator:
