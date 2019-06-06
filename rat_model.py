@@ -44,7 +44,7 @@ class PlaceCells:
         self.current_activation = self.activation_at(new_position)
 
 
-    
+
 class Critic:
 
     weights = np.zeros((cst.NB_PLACE_CELLS))
@@ -200,7 +200,7 @@ class Rat:
         }
 
         # Show a progress bar (over the steps) if required
-        iterator = tqdm(range(nb_steps)) if show_progress_bar else range(nb_steps)
+        iterator = tqdm(range(nb_steps), desc = "Steps") if show_progress_bar else range(nb_steps)
 
         # Simulate all the steps
         for _ in iterator:
@@ -250,7 +250,7 @@ class Rat:
         logs = []
 
         # Show a progress bar (over the trials) if required
-        iterator = tqdm(range(nb_trials)) if show_progress_bar else range(nb_trials)
+        iterator = tqdm(range(nb_trials), desc = "Trials") if show_progress_bar else range(nb_trials)
 
         # Simulate all the trials
         for _ in iterator:
