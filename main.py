@@ -18,17 +18,17 @@ logs = rat.simulate_n_trials(watermaze, 50)
 
 
 # Print logged data
-for index, log in enumerate(logs):
-    log_df = pd.DataFrame(log)
+# for index, log in enumerate(logs):
+#     log_df = pd.DataFrame(log)
 
-    print("\n=========== Trial n°{} ===========\n".format(index))
-    print(log_df.round(decimals = 3))
+#     print("\n=========== Trial n°{} ===========\n".format(index))
+#     print(log_df.round(decimals = 3))
 
-    print("\n=== Critic weights ===\n")
-    print(rat.critic.weights)
+#     print("\n=== Critic weights ===\n")
+#     print(rat.critic.weights)
 
-    print("\n=== Actor weights ===\n")
-    print(rat.actor.weights)
+#     print("\n=== Actor weights ===\n")
+#     print(rat.actor.weights)
 
 
 # Draw the experiment
