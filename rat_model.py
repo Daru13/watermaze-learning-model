@@ -53,16 +53,11 @@ class Critic:
     weights = np.zeros((cst.NB_PLACE_CELLS))
 
 
-    #def __init__(self):
-
-    
     def update_weights(self, place_cells, reward):
         error = reward + (cst.LEARNING_RATE * np.dot(place_cells.current_activation, self.weights) -
                 np.dot(place_cells.previous_activation, self.weights))
 
         self.weights += error * self.weights
-
-        #print("CRITIC WEIGHTS UPDATE")
 
         return error
 
@@ -84,9 +79,6 @@ class Actor:
     weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
 
 
-    #def __init__(self):
-
-
     def compute_action_probabilities(self, place_cells):
         activations = np.dot(self.weights, place_cells.current_activation)
         softmax_activations = np.exp(2.0 * activations)
@@ -98,8 +90,6 @@ class Actor:
         # Only update the weights of the chosen direction
         direction_index = self.actions.index(direction)
         self.weights[direction_index, :] += error * place_cells.current_activation
-
-        #print("ACTOR WEIGHTS UPDATE")
 
 
 
@@ -168,8 +158,6 @@ class Rat:
         self.current_pos += pos_diff
         self.previous_pos_diff = pos_diff
 
-        #print("Moved to: {}".format(new_direction))
-
         # Update the place cell activations
         self.place_cells.update_activations(self.current_pos)
 
@@ -186,9 +174,6 @@ class Rat:
         self.actor.update_weights(self.place_cells, 
                                   direction,
                                   error)
-
-        #print("Weights updated")
-        #print("Critic error: {}".format(error))
 
         return error
 

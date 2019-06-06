@@ -14,7 +14,6 @@ rat = rm.Rat()
 
 
 # Run the experiment
-#log = rat.simulate_n_steps(watermaze, 500)
 logs = rat.simulate_n_trials(watermaze, 50)
 
 
@@ -33,9 +32,6 @@ for index, log in enumerate(logs):
 
 
 # Draw the experiment
-#dw.draw_trial(watermaze, rat, logs[ 0]) # First trial
-#dw.draw_trial(watermaze, rat, logs[-1]) # Last trial
-
 for index, log in enumerate(logs):
     dw.draw_trial(watermaze, rat, log,
                   trial_index = index)
