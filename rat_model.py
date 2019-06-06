@@ -70,59 +70,34 @@ class Critic:
 
 class Actor:
 
-    weights = {
-        "top_left":       np.zeros((cst.NB_PLACE_CELLS)),
-        "top":            np.zeros((cst.NB_PLACE_CELLS)),
-        "top_right":      np.zeros((cst.NB_PLACE_CELLS)),
-        "right":          np.zeros((cst.NB_PLACE_CELLS)),
-        "bottom_right":   np.zeros((cst.NB_PLACE_CELLS)),
-        "bottom":         np.zeros((cst.NB_PLACE_CELLS)),
-        "bottom_left":    np.zeros((cst.NB_PLACE_CELLS)),
-        "left":           np.zeros((cst.NB_PLACE_CELLS))
-    }
+    actions = [
+        "top_left",
+        "top",
+        "top_right",
+        "right",
+        "bottom_right",
+        "bottom",
+        "bottom_left",
+        "left"
+    ]
+
+    weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
 
 
     #def __init__(self):
 
 
-    def compute_action_cells_activations(self, place_cells):
-        activations = {}
-        
-        for direction, weights in self.weights.items():
-            activations[direction] = np.dot(place_cells.current_activation, weights)
-
-        #print("ACTIVATIONS")
-        #print(activations)
-
-        return activations
-
-
     def compute_action_probabilities(self, place_cells):
-        activations = self.compute_action_cells_activations(place_cells)
-
-        probabilities = {}
-        softmax_sum = 0
-
-        # Compute the 'softmax' activation of each direction
-        for direction, activation in activations.items():
-            softmax_activation = np.exp(2.0 * activation)
-            
-            probabilities[direction] = softmax_activation
-            softmax_sum += softmax_activation
-
-        # Divide each by the sum of them all to get probabilities
-        for direction in probabilities.keys():
-            probabilities[direction] /= softmax_sum
-
-        #print("PROBABILITIES")
-        #print(probabilities)
-
-        return probabilities
+        activations = np.dot(self.weights, place_cells.current_activation)
+        softmax_activations = np.exp(2.0 * activations)
+        
+        return softmax_activations / softmax_activations.sum()
 
     
     def update_weights(self, place_cells, direction, error):
         # Only update the weights of the chosen direction
-        self.weights[direction] += error * place_cells.current_activation
+        direction_index = self.actions.index(direction)
+        self.weights[direction_index, :] += error * place_cells.current_activation
 
         #print("ACTOR WEIGHTS UPDATE")
 
@@ -179,17 +154,7 @@ class Rat:
         probabilities = self.actor.compute_action_probabilities(self.place_cells)
 
         # Pick the direction at random according to the above distribution
-        new_direction = None
-
-        random_number = rd.random()
-        sum_to_random_number = 0.0
-
-        for direction, probability in probabilities.items():
-            sum_to_random_number += probability
-            
-            if sum_to_random_number >= random_number:
-                new_direction = direction
-                break
+        new_direction = rd.choice(self.actor.actions, p = probabilities)
         
         # Compute the new position difference
         new_pos_diff = self.pos_diff_by_direction[new_direction] * cst.SWIMING_SPEED * cst.TIME_PER_STEP
@@ -267,7 +232,8 @@ class Rat:
         }
 
         # Iterate for at most cst.STEP_TIMEOUT seconds
-        iterator = ut.iterator_with_timeout(iter(range(sys.maxsize)), cst.TRIAL_TIMEOUT)
+        #iterator = ut.iterator_with_timeout(iter(range(sys.maxsize)), cst.TRIAL_TIMEOUT)
+        iterator = range(int(np.round(cst.TRIAL_TIMEOUT / cst.TIME_PER_STEP)))
 
         # Reset the rat to make it start again (from the same point)
         self.reset()
