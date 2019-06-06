@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from tqdm import tqdm
 
 import watermaze as wm
 import rat_model as rm
@@ -14,7 +15,7 @@ rat = rm.Rat()
 
 
 # Run the experiment
-logs = rat.simulate_n_trials(watermaze, 50)
+logs = rat.simulate_n_trials(watermaze, 60)
 
 
 # Print logged data
@@ -32,6 +33,6 @@ logs = rat.simulate_n_trials(watermaze, 50)
 
 
 # Draw the experiment
-for index, log in enumerate(logs):
+for index, log in tqdm(enumerate(logs), desc = "Drawings of the trials"):
     dw.draw_trial(watermaze, rat, log,
                   trial_index = index)
