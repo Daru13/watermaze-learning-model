@@ -72,6 +72,30 @@ def draw_critic_errors(axis, errors):
     axis.plot(np.absolute(errors))
 
 
+def draw_actor_preferred_directions(axis, rat, action_probabilities):
+    axis.set_title("Preferred directions")
+    axis.set_xticks([cst.X_ORIGIN - cst.WATERMAZE_RADIUS, cst.X_ORIGIN, cst.X_ORIGIN + cst.WATERMAZE_RADIUS])
+    axis.set_yticks([cst.Y_ORIGIN - cst.WATERMAZE_RADIUS, cst.Y_ORIGIN, cst.Y_ORIGIN + cst.WATERMAZE_RADIUS])
+
+    positions_x = rat.place_cells.positions_over_watermaze[:, 0]
+    positions_y = rat.place_cells.positions_over_watermaze[:, 1]
+
+    most_probable_directions_indices = np.argmax(action_probabilities.T, axis = 1)
+    most_probable_directions = [rat.actor.actions[i] for i in most_probable_directions_indices]
+
+    arrow_directions_x = np.array([rat.pos_diff_by_direction[direction][0] for direction in most_probable_directions])
+    arrow_directions_y = np.array([rat.pos_diff_by_direction[direction][1] for direction in most_probable_directions])
+
+   
+    most_probable_directions_probabilities = action_probabilities[most_probable_directions_indices][0]
+    arrow_directions_x *= most_probable_directions_probabilities
+    arrow_directions_y *= most_probable_directions_probabilities
+
+    indices_to_keep = np.arange(0, len(positions_x), 8)
+    axis.quiver(positions_x[indices_to_keep], positions_y[indices_to_keep],
+                arrow_directions_x[indices_to_keep], arrow_directions_y[indices_to_keep])
+
+
 def draw_critic_values(axis, positions, critic_values):
     axis.set_title("Value function estimate")
     axis.set_zlim(0, 1)
@@ -94,7 +118,8 @@ def plot_trial(watermaze, rat, log, trial_index = None, save_as_img = True, show
     draw_plateform(watermaze_axis, watermaze.plateform)
     draw_rat_positions(watermaze_axis, log["position"])
 
-    draw_critic_errors(errors_axis, log["error"])
+    #draw_critic_errors(errors_axis, log["error"])
+    draw_actor_preferred_directions(errors_axis, rat, log["action_probabilities"])
 
     draw_critic_values(values_axis, rat.place_cells.positions_over_watermaze, log["critic_values"])
 
