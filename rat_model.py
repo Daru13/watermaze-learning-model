@@ -55,7 +55,7 @@ class Critic:
         current_value_estimate = np.dot(place_cells.current_activation, self.weights)
 
         if reward == 1:
-            current_value_estimate = np.zeros((cst.NB_PLACE_CELLS))
+            current_value_estimate = 0.0
 
         error = reward + (cst.LEARNING_RATE * current_value_estimate) - previous_value_estimate
         self.weights += cst.CRITIC_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
