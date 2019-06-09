@@ -17,10 +17,16 @@ class PlaceCells:
     current_activation = None
     previous_activation = None
 
+    positions_over_watermaze = None
+    activations_over_watermaze = None
+
 
     def __init__(self):
         self.set_random_centers()
         self.reset_activations()
+
+        self.init_positions_over_watermaze()
+        self.init_activations_over_watermaze()
 
 
     def reset_activations(self):
@@ -32,6 +38,24 @@ class PlaceCells:
         self.centers = np.array(
             [ut.get_random_point_in_disc((cst.X_ORIGIN, cst.Y_ORIGIN), cst.WATERMAZE_RADIUS) for _ in range(cst.NB_PLACE_CELLS)]
         )
+
+    
+    def init_positions_over_watermaze(self):
+        step = 0.05
+
+        x_coords = np.arange(cst.X_ORIGIN - cst.WATERMAZE_RADIUS, cst.X_ORIGIN + cst.WATERMAZE_RADIUS + step, step)
+        y_coords = np.arange(cst.Y_ORIGIN - cst.WATERMAZE_RADIUS, cst.Y_ORIGIN + cst.WATERMAZE_RADIUS + step, step)
+        
+        positions = np.array(np.meshgrid(x_coords, y_coords)).T.reshape(-1, 2)
+
+        origin = np.array([cst.X_ORIGIN, cst.Y_ORIGIN])
+        distances_from_origin = la.norm(origin - positions, axis = 1)
+
+        self.positions_over_watermaze = positions[distances_from_origin <= cst.WATERMAZE_RADIUS]
+    
+
+    def init_activations_over_watermaze(self):
+        self.activations_over_watermaze = np.array([self.activation_at(pos) for pos in self.positions_over_watermaze])
 
 
     def activation_at(self, position):
@@ -48,6 +72,10 @@ class PlaceCells:
 class Critic:
 
     weights = np.zeros((cst.NB_PLACE_CELLS))
+
+
+    def estimate_values_over_watermaze(self, place_cells):
+        return [np.dot(activation, self.weights) for activation in place_cells.activations_over_watermaze]
 
 
     def update_weights(self, place_cells, reward):
@@ -79,7 +107,6 @@ class Actor:
 
     weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
 
-
     def compute_action_probabilities(self, place_cells):
         activations = np.dot(self.weights, place_cells.current_activation)
 
@@ -90,6 +117,15 @@ class Actor:
         
         #return softmax_activations / (softmax_activations.sum() + np.finfo(float).eps)
         return softmax_activations / softmax_activations.sum()
+
+
+    def compute_action_probabilities_over_watermaze(self, place_cells):
+        activations = np.array([np.dot(self.weights, activation) for activation in place_cells.activations_over_watermaze])
+
+        max_activation = np.max(activations, axis = 1)
+        softmax_activations = np.exp(2.0 * (activations - max_activation))
+        
+        return softmax_activations / softmax_activations.sum(axis = 1)
 
     
     def update_weights(self, place_cells, direction, error):
@@ -242,6 +278,10 @@ class Rat:
             if reward == 1:
                 break
         
+        # Log some additional data at the end of the step
+        log["critic_values"] = self.critic.estimate_values_over_watermaze(self.place_cells)
+        #log["action_probabilities"] = self.actor.compute_action_probabilities_over_watermaze(self.place_cells)
+
         return log
 
 

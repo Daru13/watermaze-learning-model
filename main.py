@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import watermaze as wm
 import rat_model as rm
-import drawing as dw
+from plot import plot_trial
 
 
 
@@ -31,8 +31,12 @@ logs = rat.simulate_n_trials(watermaze, 50)
 #     print("\n=== Actor weights ===\n")
 #     print(rat.actor.weights)
 
+# for i, log in enumerate(logs):
+#     print("==== TRIAL {} ====".format(i))
+#     print(log["error"])
+#     print()
 
 # Draw the experiment
-for index, log in tqdm(enumerate(logs), desc = "Drawings of the trials"):
-    dw.draw_trial(watermaze, rat, log,
-                  trial_index = index)
+for index, log in tqdm(enumerate(logs), desc = "Trial plots"):
+    plot_trial(watermaze, rat, log,
+               trial_index = index)
