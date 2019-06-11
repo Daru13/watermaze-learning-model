@@ -110,7 +110,7 @@ def draw_critic_values(axis, positions, critic_values):
                       cmap = "RdBu")
 
 
-def plot_trial(watermaze, rat, log, trial_index = None, save_as_img = True, show_figure = False):
+def plot_trial(watermaze, rat, log, trial_index = None, save_as_img = True, filename_prefix = "trial", show_figure = False):
     figure, watermaze_axis, errors_axis, values_axis = create_trial_figure()
 
     draw_watermaze(watermaze_axis, watermaze)
@@ -124,7 +124,7 @@ def plot_trial(watermaze, rat, log, trial_index = None, save_as_img = True, show
     draw_critic_values(values_axis, rat.place_cells.positions_over_watermaze, log["critic_values"])
 
     if save_as_img:
-        figure.savefig("figures/trial-{}.png".format(trial_index))
+        figure.savefig("figures/{}-{}.png".format(filename_prefix, trial_index))
 
     if show_figure:
         plt.show()
