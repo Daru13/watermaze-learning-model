@@ -171,12 +171,12 @@ class Rat:
 
 
     def __init__(self):
-        self.reset_position()
-
         self.place_cells = PlaceCells()
 
         self.critic = Critic()
         self.actor = Actor()
+
+        self.reset_position()
 
     
     def reset_position(self):
@@ -185,10 +185,17 @@ class Rat:
 
         self.previous_pos_diff = np.array([0.0, 0.0])
 
+        # Since the currennt/previous position have been reset,
+        # the precomputed place cell activations must be reset as well
+        self.place_cells.reset_activations()
+
     
     def reset(self):
         self.reset_position()
-        self.place_cells.reset_activations()
+
+        # Reset all the weights
+        self.critic.reset_weights()
+        self.actor.reset_weights()
 
 
     def is_on_plateform(self, watermaze):
@@ -279,8 +286,8 @@ class Rat:
         #iterator = ut.iterator_with_timeout(iter(range(sys.maxsize)), cst.TRIAL_TIMEOUT)
         iterator = range(int(np.round(cst.TRIAL_TIMEOUT / cst.TIME_PER_STEP)))
 
-        # Reset the rat to make it start again (from the same point)
-        self.reset()
+        # Reset the rat position
+        self.reset_position()
 
         # Simulate all the steps
         for _ in iterator:

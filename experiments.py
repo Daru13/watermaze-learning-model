@@ -1,13 +1,15 @@
+import numpy as np
 from tqdm import tqdm
 
 from watermaze import Watermaze
 from rat_model import Rat
-from plot import plot_trial
+from plot import plot_trial, plot_rat_performance
 
 
 class Experiment:
 
     rat = Rat()
+
 
 
 
@@ -22,37 +24,53 @@ class RMW (Experiment):
         self.second_watermaze.set_random_plateform()
 
 
-    def run_once(self):
-        # Move plateforms to random positions
+    def run_once(self, show_progress_bar = True):
+        # Reset some parameters
+        self.rat.reset()
         self.set_new_random_plateforms()
 
         # Run trials corresponding to the first 7 days (4 trials/day)
-        logs_part_1 = self.rat.simulate_n_trials(self.first_watermaze, 7 * 4)
+        logs = self.rat.simulate_n_trials(self.first_watermaze, 7 * 4,
+                                          show_progress_bar = show_progress_bar)
 
         # Run trials corresponding to the last 2 days (4 trials/day)
-        logs_part_2 = self.rat.simulate_n_trials(self.second_watermaze, 2 * 4)
+        logs += self.rat.simulate_n_trials(self.second_watermaze, 2 * 4,
+                                          show_progress_bar = show_progress_bar)
 
-        return logs_part_1, logs_part_2
+        return logs
 
 
-    def plot_one_run(self, logs_part_1, logs_part_2):
-        for index, log in tqdm(enumerate(logs_part_1), desc = "Trial plots (days 1-7)"):
+    def run_n_times(self, nb_times):
+        logs_of_all_runs = []
+
+        for _ in tqdm(range(nb_times)):
+            logs_of_all_runs.append(self.run_once(show_progress_bar = False))
+        
+        return logs_of_all_runs
+
+
+    def plot_one_run(self, logs):
+        for index, log in tqdm(enumerate(logs), desc = "Trial plots (RMW)"):
+            # Determine which watermaze corresponds to the current log
+            watermaze = self.first_watermaze if index < (7 * 4) else self.second_watermaze
+
             # Useful indices for plot filenames
             day = 1 + (index // 4)
             daily_index = 1 + (index % 4)
 
-            plot_trial(self.first_watermaze, self.rat, log,
-                       trial_index = daily_index,
-                       filename_prefix = "day-{}-trial-".format(day))
-
-        for index, log in tqdm(enumerate(logs_part_2), desc = "Trial plots (days 8-9)"):
-            # Useful indices for plot filenames
-            day = 8 + (index // 4)
-            daily_index = 8 + (index % 4)
-
-            plot_trial(self.second_watermaze, self.rat, log,
+            plot_trial(watermaze, self.rat, log,
                        trial_index = daily_index,
                        filename_prefix = "rmw-day-{}-trial".format(day))
+
+
+    def plot_rat_performance(self, logs_of_all_runs):
+        # For each run, count the number of logs of each trial (i.e. the number of rat moves)
+        nb_logs_of_all_runs = np.array([[len(logs["position"]) for logs in logs_of_one_run]
+                                        for logs_of_one_run in logs_of_all_runs])
+
+        # Compute the mean number of rat moves and plot it
+        mean_nb_logs = np.mean(nb_logs_of_all_runs, axis = 0)
+        plot_rat_performance(mean_nb_logs, filename = "rmw-rat-performance")
 
 
 class DMP (Experiment):
@@ -65,21 +83,46 @@ class DMP (Experiment):
             watermaze.set_random_plateform()
 
 
-    def run_once(self):
-        # Move plateforms to random positions
+    def run_once(self, show_progress_bar = True):
+        # Reset some parameters
+        self.rat.reset()
         self.set_new_random_plateforms()
 
         # Run trials for 9 days (4 trials/day)
-        return [self.rat.simulate_n_trials(self.watermazes[index], 4) for index in range(9)]
+        logs = []
+
+        for index in range(9):
+            logs += self.rat.simulate_n_trials(self.watermazes[index], 4,
+                                               show_progress_bar = show_progress_bar)
+
+        return logs
+
+
+    def run_n_times(self, nb_times):
+        logs_of_all_runs = []
+
+        for _ in tqdm(range(nb_times)):
+            logs_of_all_runs.append(self.run_once(show_progress_bar = False))
+        
+        return logs_of_all_runs
 
     
-    def plot_one_run(self, logs_per_day):
-        for day_index, day_logs in tqdm(enumerate(logs_per_day), desc = "Trial plots (days 1-9)"):
-            for index, log in enumerate(day_logs):
-                # Useful indices for plot filenames
-                day = 1 + day_index
-                daily_index = 1 + index
+    def plot_one_run(self, logs):
+        for index, log in tqdm(enumerate(logs), desc = "Trial plots (DMP)"):
+            # Useful indices for plot filenames
+            day = 1 + (index // 4)
+            daily_index = 1 + (index % 4)
 
-                plot_trial(self.watermazes[index], self.rat, log,
-                        trial_index = daily_index,
-                        filename_prefix = "dmp-day-{}-trial".format(day))
+            plot_trial(self.watermazes[day - 1], self.rat, log,
+                    trial_index = daily_index,
+                    filename_prefix = "dmp-day-{}-trial".format(day))
+
+
+    def plot_rat_performance(self, logs_of_all_runs):
+        # For each run, count the number of logs of each trial (i.e. the number of rat moves)
+        nb_logs_of_all_runs = np.array([[len(logs["position"]) for logs in logs_of_one_run]
+                                        for logs_of_one_run in logs_of_all_runs])
+
+        # Compute the mean number of rat moves and plot it
+        mean_nb_logs = np.mean(nb_logs_of_all_runs, axis = 0)
+        plot_rat_performance(mean_nb_logs, filename = "dmp-rat-performance")

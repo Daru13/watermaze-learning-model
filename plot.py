@@ -130,3 +130,31 @@ def plot_trial(watermaze, rat, log, trial_index = None, save_as_img = True, file
         plt.show()
 
     plt.close(fig = figure)
+
+
+def create_rat_performance_figure():
+    figure, axis = plt.subplots(figsize = (15, 9))
+
+    axis.set_xlabel("Trials (4/day)")
+    axis.set_xlabel("Path length (m)")
+
+    axis.set_ylim(0, cst.TRIAL_TIMEOUT)
+
+    return figure, axis
+    
+
+def plot_rat_performance(mean_nb_logs, filename = "rat-performance"):
+    figure, axis = create_rat_performance_figure()
+
+    path_lengths = mean_nb_logs * cst.TIME_PER_STEP * cst.SWIMING_SPEED
+
+    for day_index in range(9):
+        trial_indices = np.arange((day_index * 4), (day_index * 4) + 4)
+
+        axis.scatter(trial_indices + 1, path_lengths[trial_indices],
+                     marker = ".", color = "blue")
+        axis.plot(trial_indices + 1, path_lengths[trial_indices],
+                  color = "blue")
+
+    figure.savefig("figures/{}.png".format(filename))
+    plt.close(fig = figure)
