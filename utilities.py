@@ -20,3 +20,11 @@ def iterator_with_timeout(iterator, timeout):
 
     while time.time() - init_time < timeout:
         yield next(iterator)
+
+
+def print_title(title):
+    rule = "=" * len(title)
+
+    print("\n" + rule)
+    print(title)
+    print(rule + "\n")
