@@ -71,7 +71,15 @@ class PlaceCells:
 
 class Critic:
 
-    weights = np.zeros((cst.NB_PLACE_CELLS))
+    weights = None
+
+
+    def __init__(self):
+        self.reset_weights()
+
+    
+    def reset_weights(self):
+        self.weights = np.zeros((cst.NB_PLACE_CELLS))
 
 
     def estimate_values_over_watermaze(self, place_cells):
@@ -105,7 +113,16 @@ class Actor:
         "left"
     ]
 
-    weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
+    weights = None
+    
+    
+    def __init__(self):
+        self.reset_weights()
+
+    
+    def reset_weights(self):
+        self.weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
+
 
     def compute_action_probabilities(self, place_cells):
         activations = np.dot(self.weights, place_cells.current_activation)
