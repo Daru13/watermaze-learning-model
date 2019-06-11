@@ -28,5 +28,9 @@ class Watermaze:
     radius = cst.WATERMAZE_RADIUS
 
     def __init__(self):
+        self.set_random_plateform()
+
+    
+    def set_random_plateform(self):
         self.plateform = Plateform()
 
