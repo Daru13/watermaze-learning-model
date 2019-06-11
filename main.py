@@ -3,40 +3,18 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
 
-import watermaze as wm
-import rat_model as rm
+from experiments import RMW, DMP
 from plot import plot_trial
 
 
 
-# Create a rat model
-watermaze = wm.Watermaze()
-rat = rm.Rat()
+# Reference Memory in the Watermaze (RMW) experiment
+rmw = RMW()
+logs_part_1, logs_part_2 = rmw.run_once()
+rmw.plot_one_run(logs_part_1, logs_part_2)
 
 
-# Run the experiment
-logs = rat.simulate_n_trials(watermaze, 50)
-
-
-# Print logged data
-# for index, log in enumerate(logs):
-#     log_df = pd.DataFrame(log)
-
-#     print("\n=========== Trial n°{} ===========\n".format(index))
-#     print(log_df.round(decimals = 3))
-
-#     print("\n=== Critic weights ===\n")
-#     print(rat.critic.weights)
-
-#     print("\n=== Actor weights ===\n")
-#     print(rat.actor.weights)
-
-# for i, log in enumerate(logs):
-#     print("==== TRIAL {} ====".format(i))
-#     print(log["error"])
-#     print()
-
-# Draw the experiment
-for index, log in tqdm(enumerate(logs), desc = "Trial plots"):
-    plot_trial(watermaze, rat, log,
-               trial_index = index)
+# Delayed Matching-to-Place (DMP) experiment
+dmp = DMP()
+logs = dmp.run_once()
+dmp.plot_one_run(logs)
