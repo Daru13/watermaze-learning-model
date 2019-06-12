@@ -5,7 +5,12 @@ from constants import *
 from utilities import get_random_point_in_disc
 
 
+
+
 class Plateform:
+    '''
+    Plateform of a watermaze.
+    '''
 
     center = None
     radius = PLATEFORM_RADIUS
@@ -20,6 +25,9 @@ class Plateform:
 
 
 class Watermaze:
+    '''
+    Watermaze in which an experiment can be ran. It contains a plateform.
+    '''
 
     plateform = None
 

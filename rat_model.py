@@ -8,7 +8,13 @@ from utilities import get_random_point_in_disc
 
 
 
+
 class PlaceCells:
+    '''
+    Set of place cells, whose centers are randomly distributed all over a watermaze.
+    The activation of each cell (output) depends on the given position (input).
+
+    '''
 
     centers = None
 
@@ -70,7 +76,14 @@ class PlaceCells:
 
 
 
+
 class Critic:
+    '''
+    Critic of the actor-critic model.
+
+    It estimates the value function from a weighted sum of the place cell activations,
+    whose weights can and should be updated after each action taken by the rat.
+    '''
 
     weights = None
 
@@ -101,7 +114,14 @@ class Critic:
 
 
 
+
 class Actor:
+    '''
+    Actor of the actor-critic model.
+
+    It computes action probabilities from a weighted sum of the place cell activations,
+    whose weights can and should be updated after each action taken by the rat.
+    '''
 
     weights = None
 
@@ -153,7 +173,14 @@ class Actor:
 
 
 
+
 class Rat:
+    '''
+    Rat model based on the actor-critic model.
+
+    It comprises place cells, a critic and an actor,  which are used to
+    simulate steps and trials (made up of steps) and to learn weights using RL.
+    '''
 
     place_cells = None
     critic = None

@@ -5,6 +5,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from constants import *
 
 
+
+
 def create_trial_figure():
     figure = plt.figure(figsize = (15, 5))
 

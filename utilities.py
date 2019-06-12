@@ -4,6 +4,9 @@ from numpy.random import random
 import time
 
 
+
+
+# Return a random point in the disc defined by the given centr and radius
 def get_random_point_in_disc(center, radius):
     radius = radius * np.sqrt(random())
     angle = 2 * np.pi * random()
@@ -22,6 +25,7 @@ def iterator_with_timeout(iterator, timeout):
         yield next(iterator)
 
 
+# Print text which stands-out (with a rule before and after)
 def print_title(title):
     rule = "=" * len(title)
 
