@@ -1,12 +1,12 @@
 import numpy as np
-from numpy import random as rd
+from numpy.random import random
 
 import time
 
 
 def get_random_point_in_disc(center, radius):
-    radius = radius * np.sqrt(rd.random())
-    angle = 2 * np.pi * rd.random()
+    radius = radius * np.sqrt(random())
+    angle = 2 * np.pi * random()
 
     return np.array([
         center[0] + radius * np.cos(angle),

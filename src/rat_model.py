@@ -1,12 +1,10 @@
 import numpy as np
-from numpy import linalg as la
-from numpy import random as rd
+from numpy.linalg import norm
+from numpy.random import choice
 from tqdm import tqdm
 
-import sys
-
-import constants as cst
-import utilities as ut
+from constants import *
+from utilities import get_random_point_in_disc
 
 
 
@@ -30,28 +28,31 @@ class PlaceCells:
 
 
     def reset_activations(self):
-        self.current_activation = np.zeros((cst.NB_PLACE_CELLS))
-        self.previous_activation = np.zeros((cst.NB_PLACE_CELLS))  
+        self.current_activation = np.zeros((NB_PLACE_CELLS))
+        self.previous_activation = np.zeros((NB_PLACE_CELLS))  
 
 
     def set_random_centers(self):
+        def get_random_center():
+            return get_random_point_in_disc((X_ORIGIN, Y_ORIGIN), WATERMAZE_RADIUS)
+
         self.centers = np.array(
-            [ut.get_random_point_in_disc((cst.X_ORIGIN, cst.Y_ORIGIN), cst.WATERMAZE_RADIUS) for _ in range(cst.NB_PLACE_CELLS)]
+            [get_random_center() for _ in range(NB_PLACE_CELLS)]
         )
 
     
     def init_positions_over_watermaze(self):
         step = 0.05
 
-        x_coords = np.arange(cst.X_ORIGIN - cst.WATERMAZE_RADIUS, cst.X_ORIGIN + cst.WATERMAZE_RADIUS + step, step)
-        y_coords = np.arange(cst.Y_ORIGIN - cst.WATERMAZE_RADIUS, cst.Y_ORIGIN + cst.WATERMAZE_RADIUS + step, step)
+        x_coords = np.arange(X_ORIGIN - WATERMAZE_RADIUS, X_ORIGIN + WATERMAZE_RADIUS + step, step)
+        y_coords = np.arange(Y_ORIGIN - WATERMAZE_RADIUS, Y_ORIGIN + WATERMAZE_RADIUS + step, step)
         
         positions = np.array(np.meshgrid(x_coords, y_coords)).T.reshape(-1, 2)
 
-        origin = np.array([cst.X_ORIGIN, cst.Y_ORIGIN])
-        distances_from_origin = la.norm(origin - positions, axis = 1)
+        origin = np.array([X_ORIGIN, Y_ORIGIN])
+        distances_from_origin = norm(origin - positions, axis = 1)
 
-        self.positions_over_watermaze = positions[distances_from_origin <= cst.WATERMAZE_RADIUS]
+        self.positions_over_watermaze = positions[distances_from_origin <= WATERMAZE_RADIUS]
     
 
     def init_activations_over_watermaze(self):
@@ -59,8 +60,8 @@ class PlaceCells:
 
 
     def activation_at(self, position):
-        return np.exp(- np.square(la.norm(self.centers - position, axis = 1))
-                        / (2 * cst.PLACE_CELL_STD * cst.PLACE_CELL_STD))
+        return np.exp(- np.square(norm(self.centers - position, axis = 1))
+                        / (2 * PLACE_CELL_STD * PLACE_CELL_STD))
 
 
     def update_activations(self, new_position):
@@ -79,7 +80,7 @@ class Critic:
 
     
     def reset_weights(self):
-        self.weights = np.zeros((cst.NB_PLACE_CELLS))
+        self.weights = np.zeros((NB_PLACE_CELLS))
 
 
     def estimate_values_over_watermaze(self, place_cells):
@@ -93,14 +94,16 @@ class Critic:
         if reward == 1:
             current_value_estimate = 0.0
 
-        error = reward + (cst.LEARNING_RATE * current_value_estimate) - previous_value_estimate
-        self.weights += cst.CRITIC_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
+        error = reward + (LEARNING_RATE * current_value_estimate) - previous_value_estimate
+        self.weights += CRITIC_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
 
         return error
 
 
 
 class Actor:
+
+    weights = None
 
     actions = [
         "top_left",
@@ -113,15 +116,13 @@ class Actor:
         "left"
     ]
 
-    weights = None
-    
     
     def __init__(self):
         self.reset_weights()
 
     
     def reset_weights(self):
-        self.weights = np.zeros((cst.NB_ACTIONS, cst.NB_PLACE_CELLS))
+        self.weights = np.zeros((NB_ACTIONS, NB_PLACE_CELLS))
 
 
     def compute_action_probabilities(self, place_cells):
@@ -148,11 +149,15 @@ class Actor:
     def update_weights(self, place_cells, direction, error):
         # Only update the weights of the chosen direction
         direction_index = self.actions.index(direction)
-        self.weights[direction_index, :] += cst.ACTOR_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
+        self.weights[direction_index, :] += ACTOR_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
 
 
 
 class Rat:
+
+    place_cells = None
+    critic = None
+    actor = None
 
     current_pos = None
     previous_pos = None
@@ -172,7 +177,6 @@ class Rat:
 
     def __init__(self):
         self.place_cells = PlaceCells()
-
         self.critic = Critic()
         self.actor = Actor()
 
@@ -199,32 +203,29 @@ class Rat:
 
 
     def is_on_plateform(self, watermaze):
-        return la.norm(self.current_pos - watermaze.plateform.center) <= watermaze.plateform.radius
+        return norm(self.current_pos - watermaze.plateform.center) <= watermaze.plateform.radius
 
 
     def move_to_next_pos(self, watermaze):
         # Save the current position as the previous one
         self.previous_pos = self.current_pos
 
-        # Get the probability of moving in each direction
+        # Pick the direction at random according to the action probabilities
         probabilities = self.actor.compute_action_probabilities(self.place_cells)
-
-        # Pick the direction at random according to the above distribution
-        new_direction = rd.choice(self.actor.actions, p = probabilities)
+        new_direction = choice(self.actor.actions, p = probabilities)
         
-        # Compute the new position difference
-        new_pos_diff = self.pos_diff_by_direction[new_direction] * cst.SWIMING_SPEED * cst.TIME_PER_STEP
-        pos_diff = (cst.SWIMING_MOMENTUM_RATIO * new_pos_diff) + ((1.0 - cst.SWIMING_MOMENTUM_RATIO) * self.previous_pos_diff)
+        # Compute the position difference
+        new_pos_diff = self.pos_diff_by_direction[new_direction] * SWIMING_SPEED * TIME_PER_STEP
+        pos_diff = (SWIMING_MOMENTUM_RATIO * new_pos_diff) + ((1.0 - SWIMING_MOMENTUM_RATIO) * self.previous_pos_diff)
 
         # If the new position is beyond the watermaze wall, reverse the new direction
-        if la.norm(self.current_pos + pos_diff) >= cst.WATERMAZE_RADIUS:
+        if norm(self.current_pos + pos_diff) >= WATERMAZE_RADIUS:
             pos_diff *= -1.0
 
-        # Move to the new position
+        # Update the positions and the place cell activations
         self.current_pos += pos_diff
         self.previous_pos_diff = pos_diff
 
-        # Update the place cell activations
         self.place_cells.update_activations(self.current_pos)
 
         # Compute the reward for this move
@@ -234,12 +235,8 @@ class Rat:
 
 
     def update_weights(self, direction, reward):
-        error = self.critic.update_weights(self.place_cells,
-                                           reward)
-
-        self.actor.update_weights(self.place_cells, 
-                                  direction,
-                                  error)
+        error = self.critic.update_weights(self.place_cells, reward)
+        self.actor.update_weights(self.place_cells, direction, error)
 
         return error
 
@@ -282,15 +279,11 @@ class Rat:
             "position": []
         }
 
-        # Iterate for at most cst.STEP_TIMEOUT seconds
-        #iterator = ut.iterator_with_timeout(iter(range(sys.maxsize)), cst.TRIAL_TIMEOUT)
-        iterator = range(int(np.round(cst.TRIAL_TIMEOUT / cst.TIME_PER_STEP)))
-
-        # Reset the rat position
+        # Move the rat back to its initial position,
+        # and iterate for at most TRIAL_TIMEOUT seconds (for the rat)
         self.reset_position()
-
-        # Simulate all the steps
-        for _ in iterator:
+        
+        for _ in range(int(np.round(TRIAL_TIMEOUT / TIME_PER_STEP))):
             direction, reward, error = self.simulate_one_step(watermaze)
 
             log["direction"].append(direction)
@@ -298,7 +291,7 @@ class Rat:
             log["error"].append(error)
             log["position"].append(self.current_pos.copy())
 
-            # Stop trial if reward = 1
+            # Stop trial if the rat reaches the plateform (reward = 1)
             if reward == 1:
                 break
         
@@ -310,7 +303,6 @@ class Rat:
 
 
     def simulate_n_trials(self, watermaze, nb_trials, show_progress_bar = True):
-        # List of all the trial logs
         logs = []
 
         # Show a progress bar (over the trials) if required

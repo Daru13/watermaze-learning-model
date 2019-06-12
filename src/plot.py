@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-import constants as cst
+from constants import *
 
 
 def create_trial_figure():
@@ -46,8 +46,8 @@ def draw_place_cells(axis, place_cells):
 
 def draw_rat_positions(axis, positions):
     axis.set_title("Rat positions", fontsize = 12)
-    axis.set_xlim(cst.X_ORIGIN - (cst.WATERMAZE_RADIUS * 1.1), cst.X_ORIGIN + (cst.WATERMAZE_RADIUS * 1.1))
-    axis.set_ylim(cst.Y_ORIGIN - (cst.WATERMAZE_RADIUS * 1.1), cst.Y_ORIGIN + (cst.WATERMAZE_RADIUS * 1.1))
+    axis.set_xlim(X_ORIGIN - (WATERMAZE_RADIUS * 1.1), X_ORIGIN + (WATERMAZE_RADIUS * 1.1))
+    axis.set_ylim(Y_ORIGIN - (WATERMAZE_RADIUS * 1.1), Y_ORIGIN + (WATERMAZE_RADIUS * 1.1))
     axis.set_axis_off()
 
     positions_x = [pos[0] for pos in positions]
@@ -73,8 +73,8 @@ def draw_critic_errors(axis, errors):
 
 def draw_actor_preferred_directions(axis, watermaze, rat, action_probabilities):
     axis.set_title("Preferred directions", fontsize = 12)
-    axis.set_xlim(cst.X_ORIGIN - (cst.WATERMAZE_RADIUS * 1.1), cst.X_ORIGIN + (cst.WATERMAZE_RADIUS * 1.1))
-    axis.set_ylim(cst.Y_ORIGIN - (cst.WATERMAZE_RADIUS * 1.1), cst.Y_ORIGIN + (cst.WATERMAZE_RADIUS * 1.1))
+    axis.set_xlim(X_ORIGIN - (WATERMAZE_RADIUS * 1.1), X_ORIGIN + (WATERMAZE_RADIUS * 1.1))
+    axis.set_ylim(Y_ORIGIN - (WATERMAZE_RADIUS * 1.1), Y_ORIGIN + (WATERMAZE_RADIUS * 1.1))
     axis.set_axis_off()
 
     draw_watermaze(axis, watermaze)
@@ -103,8 +103,8 @@ def draw_actor_preferred_directions(axis, watermaze, rat, action_probabilities):
 def draw_critic_values(axis, positions, critic_values):
     axis.set_title("Value function estimate", fontsize = 12, pad = 20)
     axis.set_zlim(0, 1)
-    axis.set_xticks([cst.X_ORIGIN - cst.WATERMAZE_RADIUS, cst.X_ORIGIN, cst.X_ORIGIN + cst.WATERMAZE_RADIUS])
-    axis.set_yticks([cst.Y_ORIGIN - cst.WATERMAZE_RADIUS, cst.Y_ORIGIN, cst.Y_ORIGIN + cst.WATERMAZE_RADIUS])
+    axis.set_xticks([X_ORIGIN - WATERMAZE_RADIUS, X_ORIGIN, X_ORIGIN + WATERMAZE_RADIUS])
+    axis.set_yticks([Y_ORIGIN - WATERMAZE_RADIUS, Y_ORIGIN, Y_ORIGIN + WATERMAZE_RADIUS])
 
     positions_x = positions[:, 0]
     positions_y = positions[:, 1]
@@ -145,7 +145,7 @@ def create_rat_performance_figure():
     axis.set_title("Performance of the rat", fontsize = 22, pad = 10)
     axis.set_xlabel("Trials", fontsize = 16, labelpad = 20)
     axis.set_ylabel("Path length (m)", fontsize = 16, labelpad = 10)
-    axis.set_ylim(0, cst.TRIAL_TIMEOUT)
+    axis.set_ylim(0, TRIAL_TIMEOUT)
     axis.tick_params(length = 0, labelsize = 12)
 
     axis.yaxis.grid()
@@ -161,7 +161,7 @@ def plot_rat_performance(mean_nb_logs, filename = "rat-performance"):
     figure, axis = create_rat_performance_figure()
 
     # Plot the length of the path of each trial (day by day)
-    path_lengths = mean_nb_logs * cst.TIME_PER_STEP * cst.SWIMING_SPEED
+    path_lengths = mean_nb_logs * TIME_PER_STEP * SWIMING_SPEED
 
     for day_index in range(9):
         # Compute some parametrs depending on the day index

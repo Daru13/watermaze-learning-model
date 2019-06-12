@@ -6,15 +6,9 @@ from rat_model import Rat
 from plot import plot_trial, plot_rat_performance
 
 
-class Experiment:
+class RMW:
 
     rat = Rat()
-
-
-
-
-class RMW (Experiment):
-
     first_watermaze = Watermaze()
     second_watermaze = Watermaze()
 
@@ -73,8 +67,9 @@ class RMW (Experiment):
         plot_rat_performance(mean_nb_logs, filename = "rmw-rat-performance")
 
 
-class DMP (Experiment):
+class DMP:
 
+    rat = Rat()
     watermazes = [Watermaze() for _ in range(9)]
 
 
