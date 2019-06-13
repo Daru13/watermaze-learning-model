@@ -47,17 +47,17 @@ If you don't provide any, the **default behaviour** is to run both experiments 1
 
 Default behaviour:
 ```console
-./main.sh
+./main.py
 ```
 
 Simulate both experiments 50 times:
 ```console
-./main.sh -n 50
+./main.py -n 50
 ```
 
 Simulate the DMP experiment 20 times and skip trial figures:
 ```console
-./main.sh --rmw 0 --dmp 20 --no-trial-plot
+./main.py --rmw 0 --dmp 20 --no-trial-plot
 ```
 
 
