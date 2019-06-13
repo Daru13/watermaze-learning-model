@@ -188,6 +188,12 @@ class Rat:
 
     current_pos = None
     previous_pos = None
+    starting_pos = [
+        np.array([X_ORIGIN, Y_ORIGIN + (WATERMAZE_RADIUS * 0.9)]), # Top
+        np.array([X_ORIGIN, Y_ORIGIN - (WATERMAZE_RADIUS * 0.9)]), # Bottom
+        np.array([X_ORIGIN + (WATERMAZE_RADIUS * 0.9), Y_ORIGIN]), # Right
+        np.array([X_ORIGIN - (WATERMAZE_RADIUS * 0.9), Y_ORIGIN])  # Left
+    ]
 
     previous_pos_diff = None
     pos_diff_by_direction = {
@@ -211,8 +217,8 @@ class Rat:
 
     
     def reset_position(self):
-        self.current_pos = np.array([0.0, 0.0])
-        self.previous_pos = np.array([0.0, 0.0])
+        self.current_pos = self.starting_pos[choice(len(self.starting_pos))].copy()
+        self.previous_pos = None
 
         self.previous_pos_diff = np.array([0.0, 0.0])
 
