@@ -107,8 +107,8 @@ class Critic:
         if reward == 1:
             current_value_estimate = 0.0
 
-        error = reward + (LEARNING_RATE * current_value_estimate) - previous_value_estimate
-        self.weights += CRITIC_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
+        error = reward + (TEMPORAL_DECAY * current_value_estimate) - previous_value_estimate
+        self.weights += CRITIC_LEARNING_RATE * (error * place_cells.previous_activation)
 
         return error
 
@@ -169,7 +169,7 @@ class Actor:
     def update_weights(self, place_cells, direction, error):
         # Only update the weights of the chosen direction
         direction_index = self.actions.index(direction)
-        self.weights[direction_index, :] += ACTOR_WEIGHTS_UPDATE_SCALE * (error * place_cells.previous_activation)
+        self.weights[direction_index, :] += ACTOR_LEARNING_RATE * (error * place_cells.previous_activation)
 
 
 

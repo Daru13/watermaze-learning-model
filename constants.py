@@ -17,9 +17,9 @@ PLACE_CELL_STD = 0.16                   # meters
 
 NB_ACTIONS = 8                          # quantity
 
-LEARNING_RATE = 0.7                     # RL parameter
-CRITIC_WEIGHTS_UPDATE_SCALE = 0.01      # RL parameter
-ACTOR_WEIGHTS_UPDATE_SCALE = 0.1        # RL parameter
+TEMPORAL_DECAY = 0.7                    # RL parameter
+CRITIC_LEARNING_RATE = 0.01             # RL parameter
+ACTOR_LEARNING_RATE = 0.1               # RL parameter
 
 
 # Simulation-related constants
