@@ -1,5 +1,4 @@
 import numpy as np
-from numpy import random as rd
 
 from constants import *
 from utilities import get_random_point_in_disc
