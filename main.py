@@ -7,7 +7,6 @@ from tqdm import tqdm
 import argparse
 
 from experiments import RMW, DMP
-from plot import plot_trial
 from utilities import print_title
 
 
