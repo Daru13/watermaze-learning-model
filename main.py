@@ -49,7 +49,7 @@ def parse_CLI_arguments():
     parser.add_argument("--rmw", dest = "nb_runs_rmw", type = is_positive_int,
                         help = "nb. of simulations of RMW experiment.")
     parser.add_argument("--dmp", dest = "nb_runs_dmp", type = is_positive_int,
-                        help = "nb. of simulations of RMW experiment.")
+                        help = "nb. of simulations of DMP experiment.")
     parser.add_argument("--no-trial-plot", dest = "plot_trials", action = "store_false",
                         help = "only plot path length (do not plot any trial).")
 
