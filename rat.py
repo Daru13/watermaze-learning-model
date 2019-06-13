@@ -142,7 +142,7 @@ class Actor:
 
     
     def reset_weights(self):
-        self.weights = np.zeros((NB_ACTIONS, NB_PLACE_CELLS))
+        self.weights = np.zeros((len(self.actions), NB_PLACE_CELLS))
 
 
     def compute_action_probabilities(self, place_cells):
@@ -243,7 +243,7 @@ class Rat:
         
         # Compute the position difference
         new_pos_diff = self.pos_diff_by_direction[new_direction] * SWIMING_SPEED * TIME_PER_STEP
-        pos_diff = (SWIMING_MOMENTUM_RATIO * new_pos_diff) + ((1.0 - SWIMING_MOMENTUM_RATIO) * self.previous_pos_diff)
+        pos_diff = (ACTION_MOMENTUM_RATIO * new_pos_diff) + ((1.0 - ACTION_MOMENTUM_RATIO) * self.previous_pos_diff)
 
         # If the new position is beyond the watermaze wall, reverse the new direction
         if norm(self.current_pos + pos_diff) >= WATERMAZE_RADIUS:
