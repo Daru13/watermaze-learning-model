@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 from watermaze import Watermaze
 from rat_model import Rat
-from plot import plot_trial, plot_rat_performance
+from plot import TrialFigure, RatPerformanceFigure
 
 
 class RMW:
@@ -48,23 +48,16 @@ class RMW:
             # Determine which watermaze corresponds to the current log
             watermaze = self.first_watermaze if index < (7 * 4) else self.second_watermaze
 
-            # Useful indices for plot filenames
             day = 1 + (index // 4)
             daily_index = 1 + (index % 4)
 
-            plot_trial(watermaze, self.rat, log,
-                       trial_index = daily_index,
-                       filename_prefix = "rmw-day-{}-trial".format(day))
+            filename = "rmw-day-{}-trial-{}".format(day, daily_index)
+            TrialFigure(watermaze, self.rat, log).save_and_close(filename + ".png")
 
 
     def plot_rat_performance(self, logs_of_all_runs):
-        # For each run, count the number of logs of each trial (i.e. the number of rat moves)
-        nb_logs_of_all_runs = np.array([[len(logs["position"]) for logs in logs_of_one_run]
-                                        for logs_of_one_run in logs_of_all_runs])
-
-        # Compute the mean number of rat moves and plot it
-        mean_nb_logs = np.mean(nb_logs_of_all_runs, axis = 0)
-        plot_rat_performance(mean_nb_logs, filename = "rmw-rat-performance")
+        filename = "rmw-rat-performance"
+        RatPerformanceFigure(logs_of_all_runs).save_and_close(filename + ".png")
 
 
 class DMP:
@@ -104,20 +97,13 @@ class DMP:
     
     def plot_one_run(self, logs):
         for index, log in tqdm(enumerate(logs), desc = "Trial plots (DMP)"):
-            # Useful indices for plot filenames
             day = 1 + (index // 4)
             daily_index = 1 + (index % 4)
 
-            plot_trial(self.watermazes[day - 1], self.rat, log,
-                    trial_index = daily_index,
-                    filename_prefix = "dmp-day-{}-trial".format(day))
+            filename = "dmp-day-{}-trial-{}".format(day, daily_index)
+            TrialFigure(self.watermazes[day - 1], self.rat, log).save_and_close(filename + ".png")
 
 
     def plot_rat_performance(self, logs_of_all_runs):
-        # For each run, count the number of logs of each trial (i.e. the number of rat moves)
-        nb_logs_of_all_runs = np.array([[len(logs["position"]) for logs in logs_of_one_run]
-                                        for logs_of_one_run in logs_of_all_runs])
-
-        # Compute the mean number of rat moves and plot it
-        mean_nb_logs = np.mean(nb_logs_of_all_runs, axis = 0)
-        plot_rat_performance(mean_nb_logs, filename = "dmp-rat-performance")
+        filename = "rmw-rat-performance"
+        RatPerformanceFigure(logs_of_all_runs).save_and_close(filename + ".png")

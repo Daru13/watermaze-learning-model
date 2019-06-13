@@ -21,6 +21,11 @@ LEARNING_RATE = 0.7                     # RL parameter
 CRITIC_WEIGHTS_UPDATE_SCALE = 0.01      # RL parameter
 ACTOR_WEIGHTS_UPDATE_SCALE = 0.1        # RL parameter
 
+
 # Simulation-related constants
 TIME_PER_STEP = 0.1                     # seconds/simulation step
 TRIAL_TIMEOUT = 120                     # seconds
+
+
+# Figure-related constants
+SAVED_FIGURES_PATH = "./figures/"       # path to directory
