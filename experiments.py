@@ -2,8 +2,8 @@ import numpy as np
 from tqdm import tqdm
 
 from watermaze import Watermaze
-from rat_model import Rat
-from plot import TrialFigure, RatPerformanceFigure
+from rat import Rat
+from figures import TrialFigure, RatPerformanceFigure
 
 
 class RMW:
