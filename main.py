@@ -64,6 +64,6 @@ if __name__ == "__main__":
     nb_runs_dmp = args.nb_runs_dmp if args.nb_runs_dmp is not None else args.nb_runs
 
     if nb_runs_rmw > 0:
-        simulate_DMP(nb_runs_rmw, plot_trials = args.plot_trials)
+        simulate_RMW(nb_runs_rmw, plot_trials = args.plot_trials)
     if nb_runs_dmp > 0:
         simulate_DMP(nb_runs_dmp, plot_trials = args.plot_trials)
