@@ -24,7 +24,12 @@ class Figure:
 
     def save(self, filename):
         self.figure.tight_layout()
-        self.figure.savefig(Path(SAVED_FIGURES_PATH) / filename)
+
+        # If required, create directories along the path to save figures to
+        path_to_fig_directory = Path(SAVED_FIGURES_PATH)
+        path_to_fig_directory.mkdir(parents = True, exist_ok = True)
+
+        self.figure.savefig(path_to_fig_directory / filename)
 
 
     def close(self):
