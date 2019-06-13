@@ -187,6 +187,7 @@ class RatPerformanceFigure(Figure):
     '''
 
     path_lengths = None
+    path_lengths_std = None
 
     axis = None
 
@@ -202,10 +203,11 @@ class RatPerformanceFigure(Figure):
     def compute_and_set_path_lengths(self, logs_of_all_runs):
         # For each run, count the average number of logs in each trial
         # (i.e. the number of rat moves, which have a fixed length)
-        nb_logs = [[len(logs["position"]) for logs in logs_of_one_run]
-                   for logs_of_one_run in logs_of_all_runs]
+        nb_logs = np.array([[len(logs["position"]) for logs in logs_of_one_run]
+                           for logs_of_one_run in logs_of_all_runs])
 
         self.path_lengths = np.mean(nb_logs, axis = 0) * TIME_PER_STEP * SWIMING_SPEED
+        self.path_lengths_std = np.std(nb_logs * TIME_PER_STEP * SWIMING_SPEED, axis = 0)
 
 
     def create_figure_and_axis(self):
@@ -240,5 +242,6 @@ class RatPerformanceFigure(Figure):
                               facecolor = background_color)
 
             # Plot the path lengths (as connected dots)
-            self.axis.plot(trial_indices + 1, self.path_lengths[trial_indices],
-                           color = marker_color, marker = "o")
+            self.axis.errorbar(trial_indices + 1, self.path_lengths[trial_indices],
+                               yerr = self.path_lengths_std[trial_indices],
+                               color = marker_color, marker = "o", capsize = 5)
