@@ -22,10 +22,10 @@ PLACE_CELL_STD = 0.16                   # meters
 
 
 # Critic and Actor
-TEMPORAL_DECAY = 0.7                    # RL parameter
-CRITIC_LEARNING_RATE = 0.01             # RL parameter
-ACTOR_LEARNING_RATE = 0.1               # RL parameter
+TEMPORAL_DECAY = 0.95                   # RL parameter
+CRITIC_LEARNING_RATE = 0.1              # RL parameter
+ACTOR_LEARNING_RATE = 0.2               # RL parameter
 
 
 # Figures
-SAVED_FIGURES_PATH = "./figures/"       # path to directory
+SAVED_FIGURES_PATH = "./figures/"       # path to directory 
