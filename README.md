@@ -1,4 +1,4 @@
-# Reinforcement Learning in a Watermaze
+# Simulate a rat in a watermaze using TD learning
 
 This is a Python implementation of the **actor-critic model of a rat in a watermaze**, as presented in
 [A model of hippocampally dependent navigation, using the temporal difference learning rule](https://www.ncbi.nlm.nih.gov/pubmed/10706212) (Foster _et al._, 2000). Both RMW and DMP experiments can be simulated, and several kind of plots can be produced. However, the coordinate system is not part of this implementation.
@@ -25,7 +25,7 @@ They can be installed using `pip` (_e.g._ `pip install --user numpy matplotlib t
 
 ### Usage
 
-The **entry point** of the code is `main.py`. It can be ran as a script with _execute permission_ on an Unix system (if need be, you can assign it to the file by running `chmod +x main.py` in the root directory of your clone of this directory).
+The **entry point** of the code is `main.py`. It can be ran as a script with _execute permission_ on an Unix system (if need be, you can assign it to the file by running `chmod +x main.py`).
 
 The script accepts a few arguments, which are optional.
 
