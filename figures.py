@@ -123,7 +123,7 @@ class TrialFigure(Figure):
         arrows_x *= arrow_scale
         arrows_y *= arrow_scale
 
-        indices_to_keep = np.arange(0, len(positions_x), 8)
+        indices_to_keep = np.arange(0, len(positions_x), 21)
         axis.quiver(positions_x[indices_to_keep], positions_y[indices_to_keep],
                     arrows_x[indices_to_keep], arrows_y[indices_to_keep])
 
@@ -157,7 +157,7 @@ class TrialFigure(Figure):
 
         # Third subplot (value function estimate)
         self.value_estimate_axis.set_title("Value function estimate", fontsize = 12, pad = 20)
-        self.value_estimate_axis.set_zlim(0, 1)
+        self.value_estimate_axis.set_zlim(0, 1.3)
         self.value_estimate_axis.set_xticks([X_ORIGIN - WATERMAZE_RADIUS, X_ORIGIN, X_ORIGIN + WATERMAZE_RADIUS])
         self.value_estimate_axis.set_yticks([Y_ORIGIN - WATERMAZE_RADIUS, Y_ORIGIN, Y_ORIGIN + WATERMAZE_RADIUS])
         self.value_estimate_axis.set_aspect("equal")
