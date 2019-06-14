@@ -219,7 +219,7 @@ class RatPerformanceFigure(Figure):
         self.axis.set_title("Performance of the rat", fontsize = 22, pad = 10)
         self.axis.set_xlabel("Trials", fontsize = 16, labelpad = 20)
         self.axis.set_ylabel("Path length (m)", fontsize = 16, labelpad = 10)
-        self.axis.set_ylim(0, TRIAL_TIMEOUT)
+        self.axis.set_ylim(0, TRIAL_TIMEOUT * SWIMING_SPEED * 1.5)
         self.axis.tick_params(length = 0, labelsize = 12)
 
         # Add an horizontal grid to the plot
